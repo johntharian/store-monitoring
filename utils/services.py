@@ -10,7 +10,7 @@ from threading import Thread
 
 
 from models.models import Stores, BusinessHours, Timezone, Reports
-from .report import get_uptime_downtime_last_hour, get_uptime_downtime_last_day
+from .report import get_uptime_downtime_last_hour, get_uptime_downtime_last_day, get_uptime_downtime
 
 
 
@@ -101,7 +101,8 @@ def trigger_report(db):
 
 
 def generate_report(db:Session, report_id:str):
-    get_uptime_downtime_last_day(db,report_id)
+    # get_uptime_downtime_last_day(db,report_id)
+    get_uptime_downtime(db, report_id)
     # get_uptime_downtime_last_hour(db,report_id)
     # update_report_status(db,report_id)
 
