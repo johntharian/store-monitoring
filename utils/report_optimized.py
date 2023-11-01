@@ -250,6 +250,7 @@ def get_uptime_downtime(db:Session, report_id:str):
             break
         c+=1
         # break
-    pd.DataFrame(res).to_csv('reports/report3.csv')
+    pd.DataFrame(res).to_csv(f'reports/{report_id}.csv')
+    print("Saved to csv")
     end = datetime.now()
     print("Elapsed", (end - start).total_seconds() * 10**6, "µs")
