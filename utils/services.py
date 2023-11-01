@@ -10,7 +10,8 @@ from threading import Thread
 
 
 from models.models import Stores, BusinessHours, Timezone, Reports
-from .report import get_uptime_downtime_last_hour, get_uptime_downtime_last_day, get_uptime_downtime
+# from .report import get_uptime_downtime_last_hour, get_uptime_downtime_last_day, get_uptime_downtime
+from .report_optimized import get_uptime_downtime
 
 
 

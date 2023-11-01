@@ -1,11 +1,8 @@
 from sqlalchemy import asc
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
-import secrets
-import string
-import random
+
 import pytz
-import concurrent.futures
 from threading import Thread
 from models.models import Stores, BusinessHours, Timezone, Reports
 import pandas as pd
@@ -42,7 +39,7 @@ def update_report_status(db:Session, report_id:str):
         report.status = "Complete"
         db.commit()
 
-def one_hour_ago(db:Session,store_id:str, timezone:str, time_one_hour_ago:datetime, curr_time:datetime):
+def get_uptime_downtime_last_hour(db:Session,store_id:str, timezone:str, time_one_hour_ago:datetime, curr_time:datetime):
     uptime=0
     downtime=0
     prev_time=None
@@ -116,7 +113,18 @@ def one_hour_ago(db:Session,store_id:str, timezone:str, time_one_hour_ago:dateti
 
     return uptime,downtime
 
-def one_day_ago(db:Session,store_id:str, timezone:str, time_one_day_ago:datetime, curr_time:datetime):
+def get_uptime_downtime_for_day_and_week(db:Session,entity:str,store_id:str, timezone:str, curr_time:datetime):
+    
+    curr_time_local = get_local(curr_time,timezone)
+
+    if entity == 'day':
+        time = curr_time - timedelta(days=1)
+        time_local = curr_time_local - timedelta(days=1)
+    else:
+        time=curr_time - timedelta(weeks=1)
+        time_local = curr_time_local - timedelta(weeks=1)
+
+
     uptime=0
     downtime=0
     prev_time = None
@@ -124,12 +132,9 @@ def one_day_ago(db:Session,store_id:str, timezone:str, time_one_day_ago:datetime
     
     timezone = get_timezone(db,store_id)
     
-    curr_time_local = get_local(curr_time,timezone)
-    time_one_day_ago_local = curr_time_local - timedelta(days=1)
-    
     store_data = db.query(Stores).filter(
         Stores.store_id == store_id,
-        Stores.timestamp_utc > time_one_day_ago,
+        Stores.timestamp_utc > time,
         Stores.timestamp_utc < curr_time
     ).order_by(asc(Stores.timestamp_utc)).all()
 
@@ -165,7 +170,7 @@ def one_day_ago(db:Session,store_id:str, timezone:str, time_one_day_ago:datetime
                             downtime+=td
                         prev_status = store.status
                 else:
-                    td=((poll_local-time_one_day_ago_local).total_seconds())/60
+                    td=((poll_local-time_local).total_seconds())/60
                     prev_time = poll_local
 
                     if store.status == 'active':
@@ -201,7 +206,7 @@ def get_uptime_downtime(db:Session, report_id:str):
     res=[]
     curr_time = datetime.strptime("2023-01-25 18:13:22.47922 UTC", "%Y-%m-%d %H:%M:%S.%f %Z")
     time_one_hour_ago = curr_time - timedelta(hours=1)
-    time_one_day_ago = curr_time - timedelta(days=1)
+    # time_one_day_ago = curr_time - timedelta(days=1)
 
 
     store_ids=db.query(Timezone.store_id).all()
@@ -212,12 +217,25 @@ def get_uptime_downtime(db:Session, report_id:str):
         print(f"store id - {store_id}")
         timezone = get_timezone(db,store_id)
         
-        uptime_last_hour,downtime_last_hour = one_hour_ago(db,store_id,timezone,time_one_hour_ago,curr_time)
-        uptime_last_day,downtime_last_day= one_day_ago(db,store_id,timezone,time_one_day_ago,curr_time)
+        uptime_last_hour,downtime_last_hour = get_uptime_downtime_last_hour(db,store_id,timezone,time_one_hour_ago,curr_time)
+        uptime_last_day,downtime_last_day= get_uptime_downtime_for_day_and_week(db,"day",store_id,timezone,curr_time)
+        uptime_last_week,downtime_last_week= get_uptime_downtime_for_day_and_week(db,"week",store_id,timezone,curr_time)
+
+
+        res.append({"store_id":store_id,
+                    "uptime_last_hour":uptime_last_hour,
+                    "uptime_last_day":uptime_last_day,
+                    "uptime_last_week":uptime_last_week,
+                    "downtime_last_hour":downtime_last_hour,
+                    "downtime_last_day":downtime_last_day,
+                    "downtime_last_week":downtime_last_week,
+                    })
 
 
         if c==5:
             break
         c+=1
         # break
-    print(a)
+    pd.DataFrame(res).to_csv('reports/report1.csv')
+    end = datetime.now()
+    print("Elapsed", (end - start).total_seconds() * 10**6, "µs")

@@ -390,7 +390,7 @@ def get_uptime_downtime_last_day(db:Session , report_id:str):
         #     break
         print(c)
         c+=1
-        # break
+        break
     end=datetime.now()
     print("Elapsed", (end - start).total_seconds() * 10**6, "µs")
     return "two"
@@ -514,4 +514,3 @@ def get_uptime_downtime_last_hour(db:Session,report_id:str ):
 
     return res
 
-# def one_week_ago()
