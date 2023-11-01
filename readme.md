@@ -69,3 +69,6 @@ Answer
     - Output
         - if report generation is not complete, return “Running” as the output
         - if report generation is complete, return “Complete” along with the CSV file with the schema described above.
+
+# Problems Faced
+- The time taken to calculate uptime and downtime is very high for large number of store_ids even when using multi threading
