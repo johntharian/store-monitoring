@@ -20,29 +20,32 @@ from schema import schemas
 #         break
 #     print("Done")
 
+
 def migrate_timezone(db: Session):
-    timezone = pd.read_csv('utils/migration/data/bq_pro.csv')
+    timezone = pd.read_csv("utils/migration/data/bq_pro.csv")
 
     # Begin a transaction
     db.begin()
-    
+
     try:
         # Convert the DataFrame to a list of dictionaries
-        timezone_data = timezone.to_dict(orient='records')
+        timezone_data = timezone.to_dict(orient="records")
 
         # Insert data in batches
-        for batch in chunk_list(timezone_data, chunk_size=100):  # Adjust batch_size as needed
+        for batch in chunk_list(
+            timezone_data, chunk_size=100
+        ):  # Adjust batch_size as needed
             db.bulk_insert_mappings(models.Timezone, batch)
-        
+
         # Commit the transaction
         db.commit()
         print("Data migration successful")
-    
+
     except IntegrityError as e:
         # Handle any database integrity errors (e.g., duplicate keys)
         db.rollback()
         print(f"Error: {str(e)}")
-    
+
     except Exception as e:
         # Handle other exceptions
         db.rollback()
@@ -50,28 +53,30 @@ def migrate_timezone(db: Session):
 
 
 def migrate_bH(db: Session):
-    businessHours = pd.read_csv('utils/migration/data/menu_processed.csv')
+    businessHours = pd.read_csv("utils/migration/data/menu_processed.csv")
 
     # Begin a transaction
     db.begin()
-    
+
     try:
         # Convert the DataFrame to a list of dictionaries
-        businessHours_data = businessHours.to_dict(orient='records')
+        businessHours_data = businessHours.to_dict(orient="records")
 
         # Insert data in batches
-        for batch in chunk_list(businessHours_data, chunk_size=100):  # Adjust batch_size as needed
+        for batch in chunk_list(
+            businessHours_data, chunk_size=100
+        ):  # Adjust batch_size as needed
             db.bulk_insert_mappings(models.BusinessHours, batch)
-        
+
         # Commit the transaction
         db.commit()
         print("Data migration successful")
-    
+
     except IntegrityError as e:
         # Handle any database integrity errors (e.g., duplicate keys)
         db.rollback()
         print(f"Error: {str(e)}")
-    
+
     except Exception as e:
         # Handle other exceptions
         db.rollback()
@@ -79,33 +84,36 @@ def migrate_bH(db: Session):
 
 
 def migrate_store(db: Session):
-    stores = pd.read_csv('utils/migration/data/storestatus.csv')
+    stores = pd.read_csv("utils/migration/data/storestatus.csv")
 
     # Begin a transaction
     db.begin()
-    
+
     try:
         # Convert the DataFrame to a list of dictionaries
-        store_data = stores.to_dict(orient='records')
+        store_data = stores.to_dict(orient="records")
 
         # Insert data in batches
-        for batch in chunk_list(store_data, chunk_size=100):  # Adjust batch_size as needed
+        for batch in chunk_list(
+            store_data, chunk_size=100
+        ):  # Adjust batch_size as needed
             db.bulk_insert_mappings(models.Stores, batch)
-        
+
         # Commit the transaction
         db.commit()
         print("Data migration successful")
-    
+
     except IntegrityError as e:
         # Handle any database integrity errors (e.g., duplicate keys)
         db.rollback()
         print(f"Error: {str(e)}")
-    
+
     except Exception as e:
         # Handle other exceptions
         db.rollback()
         print(f"Error: {str(e)}")
 
+
 def chunk_list(lst, chunk_size):
     for i in range(0, len(lst), chunk_size):
-        yield lst[i:i + chunk_size]
+        yield lst[i : i + chunk_size]
