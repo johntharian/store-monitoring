@@ -41,6 +41,8 @@ def generate_report(db: Session, report_id: str):
 
 def get_report(db: Session, report_id: str):
     report = db.query(Reports).filter(Reports.report_id == report_id).first()
+    if not report:
+        return "No such report id"
     if report.status != "Complete":
         return "Running"
     else:
