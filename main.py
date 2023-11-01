@@ -1,20 +1,16 @@
 from fastapi import FastAPI
-from sqlalchemy.orm import Session
+import uvicorn
 
-from routers import reports, data
-
-# import models
-
-
-# from utils import migration
-from schema import schemas
+from database import engine
 from models import models
-from database import SessionLocal, engine
-
+from routers import reports, data
 
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
-
 app.include_router(reports.router)
 app.include_router(data.router)
+
+if __name__ == '__main__':
+    uvicorn.run(app,host="0.0.0.0", port=8000)
+
