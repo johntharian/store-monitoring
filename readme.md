@@ -30,8 +30,7 @@ I will explain it with last_hour as example in detail below.
 
 ### Example
 Question
-business hours for a store are 9 AM to 12 PM on Monday
-we only have 2 observations for this store on a particular date (Monday) in our data at 10:14 AM and 11:15 AM
+- business hours for a store are 9 AM to 12 PM on Monday. We only have 2 observations for this store on a particular date (Monday) in our data at 10:14 AM and 11:15 AM
 
 Answer
 - For last hour
