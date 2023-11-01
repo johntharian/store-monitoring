@@ -1,19 +1,12 @@
-from sqlalchemy import asc
-from sqlalchemy.orm import Session
-from fastapi.responses import FileResponse
-from datetime import datetime, timedelta
-import secrets
-import string
-import random
-import pytz
-import concurrent.futures
 from threading import Thread
 
+from fastapi.responses import FileResponse
+from sqlalchemy.orm import Session
 
-from models.models import Stores, BusinessHours, Timezone, Reports
-
-# from .report import get_uptime_downtime_last_hour, get_uptime_downtime_last_day, get_uptime_downtime
+from models.models import Reports
 from .report_optimized import get_uptime_downtime
+# from .report import get_uptime_downtime_last_hour, get_uptime_downtime_last_day, get_uptime_downtime
+
 
 
 def create_report(db: Session, report_id: str):
