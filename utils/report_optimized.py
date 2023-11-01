@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 
 import pytz
-from threading import Thread
+from concurrent.futures import ThreadPoolExecutor
 from models.models import Stores, BusinessHours, Timezone, Reports
 import pandas as pd
 
@@ -216,10 +216,24 @@ def get_uptime_downtime(db:Session, report_id:str):
     
         print(f"store id - {store_id}")
         timezone = get_timezone(db,store_id)
-        
-        uptime_last_hour,downtime_last_hour = get_uptime_downtime_last_hour(db,store_id,timezone,time_one_hour_ago,curr_time)
-        uptime_last_day,downtime_last_day= get_uptime_downtime_for_day_and_week(db,"day",store_id,timezone,curr_time)
-        uptime_last_week,downtime_last_week= get_uptime_downtime_for_day_and_week(db,"week",store_id,timezone,curr_time)
+        with ThreadPoolExecutor() as executor:
+            future1=executor.submit(
+                get_uptime_downtime_last_hour, db,store_id,timezone,time_one_hour_ago,curr_time
+            )
+            future2=executor.submit(
+                get_uptime_downtime_for_day_and_week,db,"day",store_id,timezone,curr_time
+            )
+            future3=executor.submit(
+                get_uptime_downtime_for_day_and_week,db,"week",store_id,timezone,curr_time
+            )
+
+            uptime_last_hour,downtime_last_hour = future1.result()
+            uptime_last_day,downtime_last_day= future2.result()
+            uptime_last_week,downtime_last_week= future3.result()
+
+        # uptime_last_hour,downtime_last_hour = get_uptime_downtime_last_hour(db,store_id,timezone,time_one_hour_ago,curr_time)
+        # uptime_last_day,downtime_last_day= get_uptime_downtime_for_day_and_week(db,"day",store_id,timezone,curr_time)
+        # uptime_last_week,downtime_last_week= get_uptime_downtime_for_day_and_week(db,"week",store_id,timezone,curr_time)
 
 
         res.append({"store_id":store_id,
@@ -232,10 +246,10 @@ def get_uptime_downtime(db:Session, report_id:str):
                     })
 
 
-        if c==5:
+        if c==100:
             break
         c+=1
         # break
-    pd.DataFrame(res).to_csv('reports/report1.csv')
+    pd.DataFrame(res).to_csv('reports/report3.csv')
     end = datetime.now()
     print("Elapsed", (end - start).total_seconds() * 10**6, "µs")
