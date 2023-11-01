@@ -51,6 +51,7 @@ def get_local(utc_datetime: datetime, timezone: str):
     """
     utc_timezone = pytz.utc
     timezone = pytz.timezone(timezone)
+    # convert utc timezone to local time zone
     t = utc_timezone.localize(utc_datetime).astimezone(timezone)
     return t
 
@@ -64,13 +65,13 @@ def get_start_end_time(db: Session, store_id: str, day: int):
     db : Session
         database session
     store_id : str
-        id of the store 
+        id of the store
     day: int
         day to get the opening and closing time
 
     Returns
     -------
-    tuple 
+    tuple
         a tuple containing the opening and closing time for a day
     """
     time = (
@@ -104,7 +105,6 @@ def update_report_status(db: Session, report_id: str):
 
 
 def get_uptime_downtime_last_hour(
-    
     db: Session,
     store_id: str,
     timezone: str,
@@ -125,11 +125,11 @@ def get_uptime_downtime_last_hour(
     time_one_hour_ago : datetime
         datetime one hour ago
     curr_time : datetime
-        current datetime 
+        current datetime
 
     Returns
     -------
-    tuple 
+    tuple
         a tuple containing the uptime and downtime for the last hour
     """
     uptime = 0
@@ -138,6 +138,7 @@ def get_uptime_downtime_last_hour(
     prev_status = None
 
     end = 0
+    # store data within current time and time_one_hour_ago
     store_data = (
         db.query(Stores)
         .filter(
@@ -149,6 +150,7 @@ def get_uptime_downtime_last_hour(
         .all()
     )
 
+    # convert current time and time_one_hour_ago to current time
     curr_time_local = get_local(curr_time, timezone)
     time_one_hour_ago_local = curr_time_local - timedelta(hours=1)
 
@@ -156,12 +158,13 @@ def get_uptime_downtime_last_hour(
     start_time, end_time = get_start_end_time(db, store_id, day)
 
     if len(store_data) > 0:
-
+        # iterate over each poll data
         for store in store_data:
             poll = store.timestamp_utc
             poll_local = get_local(poll, timezone)
 
             if prev_time is not None:
+                # if poll time is within clsoing time -> calculate time difference
                 if poll_local.time() < end_time:
                     # print(poll_local.time(),"here")
                     td = ((poll_local - prev_time).total_seconds()) / 60
@@ -175,6 +178,7 @@ def get_uptime_downtime_last_hour(
                     prev_status = store.status
 
                 else:
+                    # varabile for checking if time difference between last poll and current time or closing time has been calculated
                     end = 1
                     td = ((curr_time_local - prev_time).total_seconds()) / 60
 
@@ -184,6 +188,7 @@ def get_uptime_downtime_last_hour(
                         downtime += td
 
             else:
+                # poll time within store timings
                 if start_time <= poll_local.time() <= end_time:
                     td = ((poll_local - time_one_hour_ago_local).total_seconds()) / 60
 
@@ -228,16 +233,17 @@ def get_uptime_downtime_for_day_and_week(
     timezone : str
         timezone of the store
     curr_time : datetime
-        current datetime 
+        current datetime
 
     Returns
     -------
-    tuple 
+    tuple
         a tuple containing the uptime and downtime for the last day or week
     """
 
     curr_time_local = get_local(curr_time, timezone)
 
+    # check if day or week to be calculated
     if entity == "day":
         time = curr_time - timedelta(days=1)
         time_local = curr_time_local - timedelta(days=1)
@@ -252,6 +258,7 @@ def get_uptime_downtime_for_day_and_week(
 
     timezone = get_timezone(db, store_id)
 
+    # retrieve store data for the given store and enitity
     store_data = (
         db.query(Stores)
         .filter(
@@ -264,17 +271,21 @@ def get_uptime_downtime_for_day_and_week(
     )
 
     if len(store_data) > 0:
-
+        # iterate over each poll
         for store in store_data:
             poll = store.timestamp_utc
+            # convert to local time
             poll_local = get_local(poll, timezone)
 
             poll_day = poll_local.weekday()
 
             start_time, end_time = get_start_end_time(db, store_id, poll_day)
 
+            # if poll time within store timing
             if start_time <= poll_local.time() <= end_time:
+                # check if there is a prev time
                 if prev_time is not None:
+                    # if prev time is greater than start time -> time difference should be between poll time and prev time
                     if prev_time.time() > start_time:
                         td = ((poll_local - prev_time).total_seconds()) / 60
                         prev_time = poll_local
@@ -302,6 +313,7 @@ def get_uptime_downtime_for_day_and_week(
                             downtime += td
                         prev_status = store.status
                 else:
+                    # poll time is within store timing 
                     td = ((poll_local - time_local).total_seconds()) / 60
                     prev_time = poll_local
 
@@ -313,6 +325,7 @@ def get_uptime_downtime_for_day_and_week(
 
             else:
                 if prev_time is not None:
+                    # time difference between end time and previous time
                     if poll_local.time() > end_time and prev_time.time() < end_time:
                         td = (
                             end_time.hour * 60
@@ -336,7 +349,7 @@ def get_uptime_downtime_for_day_and_week(
                 else:
                     prev_time = poll_local
                     continue
-
+    # uptime, downtime in minutes to hours
     return uptime / 60, downtime / 60
 
 
@@ -351,10 +364,11 @@ def get_uptime_downtime(db: Session, report_id: str):
     report_id : str
         id of the report to save data to
     """
-    
+
     start = datetime.now()
     c = 0
     res = []
+    # hard coded current time
     curr_time = datetime.strptime(
         "2023-01-25 18:13:22.47922 UTC", "%Y-%m-%d %H:%M:%S.%f %Z"
     )
@@ -364,10 +378,12 @@ def get_uptime_downtime(db: Session, report_id: str):
     store_ids = db.query(Timezone.store_id).all()
     store_ids = [store_id for (store_id,) in store_ids]
 
+    # iterate over each store_id
     for store_id in store_ids:
-
         print(f"store id - {store_id}")
         timezone = get_timezone(db, store_id)
+
+        # added multi threading to decrease compute time
         with ThreadPoolExecutor() as executor:
             future1 = executor.submit(
                 get_uptime_downtime_last_hour,
@@ -413,11 +429,12 @@ def get_uptime_downtime(db: Session, report_id: str):
                 "downtime_last_week": downtime_last_week,
             }
         )
-
+        # code to break the iteration after a fixed number of store_ids
         if c == 100:
             break
         c += 1
         # break
+    # save df to csv
     pd.DataFrame(res).to_csv(f"reports/{report_id}.csv")
     print("Saved to csv")
     end = datetime.now()
