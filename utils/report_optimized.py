@@ -10,6 +10,21 @@ from models.models import Stores, BusinessHours, Timezone, Reports
 
 
 def get_timezone(db: Session, store_id: str):
+    """
+    Get timezone of a store from database.
+
+    Parameters
+    ----------
+    db : Session
+        database session
+    store_id : str
+        id of the store to get the timezone
+
+    Returns
+    -------
+    str
+        timezone of the store
+    """
     timezone = db.query(Timezone).filter(Timezone.store_id == store_id).first()
     if not timezone:
         timezone = "America/Chicago"
@@ -19,6 +34,21 @@ def get_timezone(db: Session, store_id: str):
 
 
 def get_local(utc_datetime: datetime, timezone: str):
+    """
+    Convert utc_datetime to local time of a store.
+
+    Parameters
+    ----------
+    db : Session
+        database session
+    timzone : str
+        timezone to convert to
+
+    Returns
+    -------
+    datetime
+        datetime that is converted to the required time zone
+    """
     utc_timezone = pytz.utc
     timezone = pytz.timezone(timezone)
     t = utc_timezone.localize(utc_datetime).astimezone(timezone)
@@ -26,6 +56,23 @@ def get_local(utc_datetime: datetime, timezone: str):
 
 
 def get_start_end_time(db: Session, store_id: str, day: int):
+    """
+    Get opening and closing time of a store for a prticular day.
+
+    Parameters
+    ----------
+    db : Session
+        database session
+    store_id : str
+        id of the store 
+    day: int
+        day to get the opening and closing time
+
+    Returns
+    -------
+    tuple 
+        a tuple containing the opening and closing time for a day
+    """
     time = (
         db.query(BusinessHours)
         .filter(BusinessHours.store_id == store_id, BusinessHours.day == day)
@@ -39,6 +86,16 @@ def get_start_end_time(db: Session, store_id: str, day: int):
 
 
 def update_report_status(db: Session, report_id: str):
+    """
+    Update the status of the report.
+
+    Parameters
+    ----------
+    db : Session
+        database session
+    report_id : str
+        id of the report to be updated
+    """
     report = db.query(Reports).filter(Reports.report_id == report_id).first()
 
     if report:
@@ -47,12 +104,34 @@ def update_report_status(db: Session, report_id: str):
 
 
 def get_uptime_downtime_last_hour(
+    
     db: Session,
     store_id: str,
     timezone: str,
     time_one_hour_ago: datetime,
     curr_time: datetime,
 ):
+    """
+    Get uptime and downtime of a store for the last hour.
+
+    Parameters
+    ----------
+    db : Session
+        database session
+    store_id : str
+        id of the store
+    timezone : str
+        timezone of the store
+    time_one_hour_ago : datetime
+        datetime one hour ago
+    curr_time : datetime
+        current datetime 
+
+    Returns
+    -------
+    tuple 
+        a tuple containing the uptime and downtime for the last hour
+    """
     uptime = 0
     downtime = 0
     prev_time = None
@@ -135,6 +214,27 @@ def get_uptime_downtime_last_hour(
 def get_uptime_downtime_for_day_and_week(
     db: Session, entity: str, store_id: str, timezone: str, curr_time: datetime
 ):
+    """
+    Get uptime and downtime of a store for the last day or week.
+
+    Parameters
+    ----------
+    db : Session
+        database session
+    entity : str
+        field to specify if it is day or week
+    store_id : str
+        id of the store
+    timezone : str
+        timezone of the store
+    curr_time : datetime
+        current datetime 
+
+    Returns
+    -------
+    tuple 
+        a tuple containing the uptime and downtime for the last day or week
+    """
 
     curr_time_local = get_local(curr_time, timezone)
 
@@ -241,6 +341,17 @@ def get_uptime_downtime_for_day_and_week(
 
 
 def get_uptime_downtime(db: Session, report_id: str):
+    """
+    Get uptime and downtime of a store for a store.
+
+    Parameters
+    ----------
+    db : Session
+        database session
+    report_id : str
+        id of the report to save data to
+    """
+    
     start = datetime.now()
     c = 0
     res = []
