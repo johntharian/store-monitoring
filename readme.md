@@ -1,6 +1,8 @@
 # Store Monitoring
 This assignment will help identify restaurant owners identify how frequently their stores go offline. The assignment was built using Fast API and PostgreSQL.
 
+The link to the demo is at [demo](https://www.loom.com/share/93028c52c5394195bd6e2a0fa26b0ef2?sid=4bed3565-1514-4e17-92b8-cfc0c2da7c46) 
+
 ## Data Cleaning
 I did some EDA on all three datasets and found values that were absent in some of the datasets.
 There were few stores that were present in business hour and timezone data that were missing from store data. Such data was removed. There were few stores that were present in stores but absent in business hour and timezone data. Such data was added according to the conditions specified in the task. (Timezone - America/Chicago , Business Hour - 00:00:00 - 23:59:59)
