@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 
 from models.models import Reports
 from .report_optimized import get_uptime_downtime
-# from .report import get_uptime_downtime_last_hour, get_uptime_downtime_last_day, get_uptime_downtime
 
+# from .report import get_uptime_downtime_last_hour, get_uptime_downtime_last_day, get_uptime_downtime
 
 
 def create_report(db: Session, report_id: str):
@@ -18,7 +18,6 @@ def create_report(db: Session, report_id: str):
     db.add(db_report)
     db.commit()
     db.refresh(db_report)
-    return db_report
 
 
 def trigger_report(db):
@@ -26,7 +25,7 @@ def trigger_report(db):
 
     report_id = "report" + str(len(report_ids) + 1)
     # data_location="reports"
-    report = create_report(db, report_id)
+    create_report(db, report_id)
     daemon = Thread(target=generate_report, args=(db, report_id), daemon=True)
     daemon.start()
     return report_id

@@ -13,6 +13,7 @@ router = APIRouter()
 async def trigger_report(db: Session = Depends(get_db)):
     return services.trigger_report(db)
 
+
 # @DESC - reuturns status with csv for report_id
 # @ROUTE - GET /get_report
 # @PARAMS - report_id - id of the report

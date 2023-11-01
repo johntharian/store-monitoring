@@ -252,7 +252,7 @@ def get_uptime_downtime(db: Session, report_id: str):
 
     store_ids = db.query(Timezone.store_id).all()
     store_ids = [store_id for (store_id,) in store_ids]
-    a = []
+
     for store_id in store_ids:
 
         print(f"store id - {store_id}")

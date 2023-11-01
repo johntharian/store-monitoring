@@ -6,8 +6,10 @@ from models import models
 def get_stores(db: Session, limit: int = 100):
     return db.query(models.Stores).limit(limit).all()
 
+
 def get_business_hours(db: Session):
     return db.query(models.BusinessHours).limit(100).all()
+
 
 def get_timezone(db: Session):
     return db.query(models.Timezone).limit(100).all()

@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 
 from models import models
 
+
 def migrate_timezone(db: Session):
     timezone = pd.read_csv("utils/migration/data/bq_pro.csv")
 
@@ -15,22 +16,19 @@ def migrate_timezone(db: Session):
         timezone_data = timezone.to_dict(orient="records")
 
         # Insert data in batches
-        for batch in chunk_list(
-            timezone_data, chunk_size=100
-        ):  
+        for batch in chunk_list(timezone_data, chunk_size=100):
             db.bulk_insert_mappings(models.Timezone, batch)
 
-        
         db.commit()
         print("Data migration successful")
 
     except IntegrityError as e:
-        
+
         db.rollback()
         print(f"Error: {str(e)}")
 
     except Exception as e:
-        
+
         db.rollback()
         print(f"Error: {str(e)}")
 
@@ -46,22 +44,19 @@ def migrate_bH(db: Session):
         businessHours_data = businessHours.to_dict(orient="records")
 
         # Insert data in batches
-        for batch in chunk_list(
-            businessHours_data, chunk_size=100
-        ):  
+        for batch in chunk_list(businessHours_data, chunk_size=100):
             db.bulk_insert_mappings(models.BusinessHours, batch)
 
-        
         db.commit()
         print("Data migration successful")
 
     except IntegrityError as e:
-        
+
         db.rollback()
         print(f"Error: {str(e)}")
 
     except Exception as e:
-        
+
         db.rollback()
         print(f"Error: {str(e)}")
 
@@ -77,12 +72,9 @@ def migrate_store(db: Session):
         store_data = stores.to_dict(orient="records")
 
         # Insert data in batches
-        for batch in chunk_list(
-            store_data, chunk_size=100
-        ):  
+        for batch in chunk_list(store_data, chunk_size=100):
             db.bulk_insert_mappings(models.Stores, batch)
 
-        
         db.commit()
         print("Data migration successful")
 
