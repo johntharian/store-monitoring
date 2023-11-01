@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime, time
 
-
+# store schema
 class Stores(BaseModel):
     store_id: int
     timestamp_utc: datetime
@@ -10,7 +10,7 @@ class Stores(BaseModel):
     class Config:
         orm_mode = True
 
-
+# businessHour schema
 class BusinessHours(BaseModel):
     store_id: int
     day: int
@@ -20,7 +20,7 @@ class BusinessHours(BaseModel):
     class Config:
         orm_mode = True
 
-
+# timezone schema
 class Timezone(BaseModel):
     store_id: int
     timezone_str: str
@@ -28,7 +28,7 @@ class Timezone(BaseModel):
     class Config:
         orm_mode = True
 
-
+# report schema
 class Reports(BaseModel):
     report_id: str
     status: str

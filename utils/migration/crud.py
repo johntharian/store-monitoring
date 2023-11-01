@@ -4,6 +4,21 @@ from models import models
 
 
 def get_stores(db: Session, limit: int = 100):
+    """
+    Get stores from database.
+
+    Parameters
+    ----------
+    db : Session
+        database session
+    limit : int
+        number of records to retrieve from database
+
+    Returns
+    -------
+    list 
+        list of store data
+    """
     return db.query(models.Stores).limit(limit).all()
 
 

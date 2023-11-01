@@ -11,7 +11,7 @@ from sqlalchemy import (
 
 from database import Base
 
-
+# store model
 class Stores(Base):
     __tablename__ = "stores"
 
@@ -22,7 +22,7 @@ class Stores(Base):
 
     # timezone = relationship("Timezone", back_populates="stores")
 
-
+# businessHour model
 class BusinessHours(Base):
     __tablename__ = "businessHours"
 
@@ -34,7 +34,7 @@ class BusinessHours(Base):
 
     # timezone = relationship("Timezone", back_populates="business_hours")
 
-
+# timezone model
 class Timezone(Base):
     __tablename__ = "timezone"
 
@@ -44,7 +44,7 @@ class Timezone(Base):
     # stores = relationship("Stores", back_populates="timezone")
     # business_hours = relationship("BusinessHours", back_populates="timezone")
 
-
+# report model
 class Reports(Base):
     __tablename__ = "reports"
 
