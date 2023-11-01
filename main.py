@@ -5,9 +5,11 @@ from database import engine
 from models import models
 from routers import reports, data
 
+# database connection
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
+# routes
 app.include_router(reports.router)
 app.include_router(data.router)
 
