@@ -1,4 +1,13 @@
+# csv files that are for migration
 utils/migration/data/
 
+# generated reports
 reports/
 
+# pycache
+__pycache__/
+models/__pycache__/
+routers/__pycache__/
+schema/__pycache__/
+utils/__pycache__/
+utils/migration/pycache/
