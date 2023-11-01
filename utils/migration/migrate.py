@@ -6,6 +6,14 @@ from models import models
 
 
 def migrate_timezone(db: Session):
+    """
+    Migrate timezone data from csv to database.
+
+    Parameters
+    ----------
+    db : Session
+        database session
+    """
     timezone = pd.read_csv("utils/migration/data/bq_pro.csv")
 
     # Begin a transaction
@@ -34,6 +42,14 @@ def migrate_timezone(db: Session):
 
 
 def migrate_bH(db: Session):
+    """
+    Migrate business hour data from csv to database.
+
+    Parameters
+    ----------
+    db : Session
+        database session
+    """
     businessHours = pd.read_csv("utils/migration/data/menu_processed.csv")
 
     # Begin a transaction
@@ -62,6 +78,14 @@ def migrate_bH(db: Session):
 
 
 def migrate_store(db: Session):
+    """
+    Migrate store data from csv to database.
+
+    Parameters
+    ----------
+    db : Session
+        database session
+    """
     stores = pd.read_csv("utils/migration/data/storestatus.csv")
 
     # Begin a transaction
@@ -88,5 +112,20 @@ def migrate_store(db: Session):
 
 
 def chunk_list(lst, chunk_size):
+    """
+    Reduces data to chunks
+
+    Parameters
+    ----------
+    lst : data
+        data to be reduced
+    chunk_size : int
+        sizz of the chunk
+
+    Returns
+    -------
+    list
+        list containing chunks of data
+    """
     for i in range(0, len(lst), chunk_size):
         yield lst[i : i + chunk_size]
